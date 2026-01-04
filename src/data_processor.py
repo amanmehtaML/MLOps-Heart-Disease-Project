@@ -21,7 +21,6 @@ def load_data(path: str = "data/processed.cleveland.data") -> pd.DataFrame:
         # na_values=['?']: Missing values ko NaN mein badalne ke liye.
         df = pd.read_csv(path, header=None, names=COLUMNS, na_values=['?'])
     except FileNotFoundError:
-        # E501 Fix: Line ko chota kiya
         print(f"Error: Data file not found at {path}. Please ensure data is "
               f"present.")
         raise
@@ -29,13 +28,15 @@ def load_data(path: str = "data/processed.cleveland.data") -> pd.DataFrame:
     # Missing values (jo '?' the) ko drop karo
     df = df.dropna()
 
-    # Target column ko 0s aur 1s mein clean karo (4 values of disease mapping to 1)
+    # Target column ko 0s aur 1s mein clean karo (4 values of disease mapping
+    # to 1)  <-- E501 FIX
     df['target'] = df['target'].map({0: 0, 1: 1, 2: 1, 3: 1, 4: 1})
 
     return df
 
 
-def split_data(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42):
+def split_data(df: pd.DataFrame, test_size: float = 0.2,
+               random_state: int = 42):  # <-- E501 FIX
     """Splits data into training and testing sets with stratification."""
     X = df.drop('target', axis=1)
     y = df['target']
@@ -80,6 +81,7 @@ if __name__ == '__main__':
     data = load_data()
     X_train, X_test, y_train, y_test = split_data(data)
     preprocessor = create_preprocessor(data)
-    # E501 Fix: Line ko chota kiya
     print(f"data_processor.py: Data loaded ({data.shape[0]} rows) and split "
           f"successfully.")
+
+# W292 Fix: file ke aakhir mein ek blank line hai
