@@ -14,7 +14,7 @@ COLUMNS = [
 
 
 def load_data(path: str = "data/processed.cleveland.data") -> pd.DataFrame:
-    """Loads and returns the cleaned heart disease dataset with proper headers."""
+    """Loads and returns the cleaned heart disease dataset.""" # <-- FINAL E501 FIX (79 chars ke andar)
     try:
         # header=None: Kyunki raw data mein header nahi hai.
         # names=COLUMNS: Sahi column names assign karne ke liye.
