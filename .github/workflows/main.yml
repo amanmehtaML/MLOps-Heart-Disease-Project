@@ -1,88 +1,75 @@
 name: Heart Disease MLOps CI Pipeline
 
 on:
-  # Jab bhi code push ya Pull Request 'main' branch mein aaye, tab run karo
-  push:
-    branches:
-      - main
-  pull_request:
-    branches:
-      - main
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
 
 jobs:
-  build-and-test:
-    runs-on: ubuntu-latest
-    
-    # Environment variables for MLflow tracking (Databricks setup ke liye zaroori)
-    env:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    # Environment variables for MLflow tracking (Databricks setup ke liye zaroori)
+    env:
       MLFLOW_TRACKING_URI: ${{ secrets.DATABRICKS_HOST }}
       MLFLOW_TRACKING_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       MLFLOW_EXPERIMENT_NAME: /Users/your_user_email/Heart_Disease_Prediction_CI
 
-    steps:
-    - name: ⬇️ Checkout code
-      uses: actions/checkout@v4
+    steps:
+    - name: ⬇️ Checkout code
+      uses: actions/checkout@v4
 
-    - name: 🐍 Set up Python 3.10
-      uses: actions/setup-python@v4
-      with:
-        python-version: '3.10'
+    - name: 🐍 Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
 
-    - name: 📦 Install dependencies
-      run: |
-        python -m pip install --upgrade pip
-        pip install -r requirements.txt
-        pip install flake8 pytest
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install flake8 pytest
 
-    # 1. Linting Step (Code Style Check)
-    - name: 🧹 Run Linting (Flake8)
-      run: |
-        flake8 src/ --count --show-source --statistics
+    # 1. Linting Step (Code Style Check)
+    - name: 🧹 Run Linting (Flake8)
+      run: |
+        flake8 src/ --count --show-source --statistics
 
-    # 2. Unit Testing Step (Automated Testing)
-    - name: 🧪 Run Pytest Unit Tests
-      run: |
-        python -m pytest test/
+    # 2. Unit Testing Step (Automated Testing)
+    - name: 🧪 Run Pytest Unit Tests
+      run: |
+        python -m pytest test/
 
-    # 3. Model Training and MLflow Logging Step (Reproducibility & Artifacts)
-    - name: 🚂 Train Model and Log to MLflow
-      run: |
-        # MLflow environment variables already set in 'env:' block
-        python src/train_model.py
-        
-    - name: 📄 Upload MLflow Artifacts
-      uses: actions/upload-artifact@v4
-      with:
-        name: mlflow-artifacts
-        path: mlruns/
-        retention-days: 7
+    # 3. Model Training and MLflow Logging Step (Reproducibility & Artifacts)
+    - name: 🚂 Train Model and Log to MLflow
+      run: |
+        python src/train_model.py
+        
+    - name: 📄 Upload MLflow Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: mlflow-artifacts
+        path: mlruns/
+        retention-days: 7
     
-    # =========================================================================
     # 4. Continuous Deployment (CD) Steps: Model Register and Deployment
-    # =========================================================================
-
     - name: 🔐 Setup Databricks CLI Authentication
-      uses: databricks/setup-cli@v1 # Databricks CLI set up karna
+      uses: databricks/setup-cli@v1
       with:
         databricks-host: ${{ secrets.DATABRICKS_HOST }}
         databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
-        # NOTE: Agar aap Databricks CLI use kar rahe hain, toh aapke secrets
-        # 'env:' block ke alawa yahan 'with:' block mein bhi define karne padenge.
 
     - name: 🎯 Register Model and Transition to Staging
       run: |
-        # Model Name (should match the name used in train_model.py's mlflow.register_model)
         MODEL_NAME="Heart_Disease_Classifier"
         
         # Get the latest run ID from the CI run
-        # Yeh command assume karta hai ki mlruns/0/ ke andar ek hi run hua hoga
         RUN_ID=$(cat mlruns/0/*/meta.yaml | grep run_id | awk '{print $2}' | tail -n 1)
         
         echo "Found Run ID: $RUN_ID"
-        
-        # MLflow Model Registry mein naya version register karo.
-        # Agar aapka model train_model.py mein MLflow.log_model() se register nahi ho raha, toh isse use karein.
-        # Agar ho raha hai, toh sirf transition command chalao. Hum dono rakhte hain.
         
         # databricks CLI use karke latest version ko Staging mein promote karo
         databricks models transition --name $MODEL_NAME --version latest --stage Staging --archive-existing-versions false
