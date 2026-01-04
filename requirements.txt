@@ -1,5 +1,5 @@
-# FINAL FINAL FINAL FIXES for Python 3.10 Compatibility (CI/CD)
-# Includes all previous fixes and the final protobuf version lock.
+# ULTIMATE FINAL FIXES for Python 3.10 Compatibility (CI/CD)
+# Includes all previous fixes, major version locks, and the starlette/fastapi sync.
 
 alembic==1.17.2
 annotated-doc==0.0.4
@@ -104,7 +104,7 @@ platformdirs==4.5.1
 pluggy==1.6.0
 prometheus_client==0.23.1
 prompt_toolkit==3.0.52
-protobuf==4.25.8           # FIX: Set to highest available confirmed version to meet databricks-sdk requirement
+protobuf==4.25.8
 psutil==5.9.8
 pure_eval==0.2.3
 pyarrow==10.0.1
@@ -139,7 +139,7 @@ soupsieve==2.5
 SQLAlchemy==2.0.31
 sqlparse==0.5.5
 stack-data==0.6.3
-starlette==0.35.1
+starlette==0.40.0           # FINAL FIX: Updated to meet fastapi>=0.40.0 requirement
 terminado==0.18.1
 threadpoolctl==3.5.0
 tinycss2==1.4.0
