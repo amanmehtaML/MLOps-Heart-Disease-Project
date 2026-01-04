@@ -57,7 +57,8 @@ jobs:
     
     # 4. Continuous Deployment (CD) Steps: Model Register and Deployment
     - name: 🔐 Setup Databricks CLI Authentication
-      uses: databricks/setup-cli@v1
+      # FIX: Action version changed from v1 to v2
+      uses: databricks/setup-cli@v2
       with:
         databricks-host: ${{ secrets.DATABRICKS_HOST }}
         databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
