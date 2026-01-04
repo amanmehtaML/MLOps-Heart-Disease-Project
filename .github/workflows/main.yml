@@ -57,8 +57,8 @@ jobs:
     
     # 4. Continuous Deployment (CD) Steps: Model Register and Deployment
     - name: 🔐 Setup Databricks CLI Authentication
-      # FIX: Action version changed to stable SHA hash
-      uses: databricks/setup-cli@e845f94943714b2d5d8525b6a51d9d9f583f7d1f
+      # FIX: Using the stable '@main' branch for resolution
+      uses: databricks/setup-cli@main
       with:
         databricks-host: ${{ secrets.DATABRICKS_HOST }}
         databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
