@@ -1,0 +1,96 @@
+name: Heart Disease MLOps CI Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    env:
+      # Global env variables for MLflow and fallback (CLI ke liye specific step mein set karenge)
+      MLFLOW_TRACKING_URI: ${{ secrets.DATABRICKS_HOST }}
+      MLFLOW_TRACKING_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
+      MLFLOW_EXPERIMENT_NAME: /Users/your_user_email/Heart_Disease_Prediction_CI
+      DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}    
+      DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}  
+
+    steps:
+    - name: ⬇️ Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🐍 Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        pip install flake8 pytest
+
+    # 1. Linting Step
+    - name: 🧹 Run Linting (Flake8)
+      run: |
+        flake8 src/ --count --show-source --statistics
+
+    # 2. Unit Testing Step
+    - name: 🧪 Run Pytest Unit Tests
+      run: |
+        python -m pytest test/
+
+    # 3. Model Training and MLflow Logging Step (CI)
+    - name: 🚂 Train Model and Log to MLflow
+      run: |
+        python src/train_model.py
+        
+    - name: 📄 Upload MLflow Artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: mlflow-artifacts
+        path: mlruns/
+        retention-days: 7
+    
+    # 4. Continuous Deployment (CD) Steps
+    
+    - name: 🔐 Setup New Databricks CLI (Binary Download)
+      run: |
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        echo "$HOME/.databricks/cli" >> $GITHUB_PATH
+        echo "New Databricks CLI installed and added to PATH."
+
+    - name: 🎯 Register Model and Transition to Staging
+      env:
+        # FIX: Explicitly set Databricks credentials for this step to ensure unified authentication works
+        DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}    
+        DATABRICKS_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}  
+      run: |
+        MODEL_NAME="Heart_Disease_Classifier"
+        
+        # Robust Run ID extraction
+        if [ ! -d "mlruns" ]; then
+          echo "Fatal Error: 'mlruns' directory not found after training. Please check src/train_model.py."
+          exit 1
+        fi
+        
+        LATEST_RUN_DIR=$(find mlruns -maxdepth 2 -mindepth 2 -type d -printf '%T@ %p\n' | sort -r | head -n 1 | awk '{print $2}')
+        
+        if [ -z "$LATEST_RUN_DIR" ]; then
+          echo "Error: Could not find any Run ID directory inside mlruns/. Deployment skipped."
+          exit 0 
+        fi
+        
+        RUN_ID=$(basename $LATEST_RUN_DIR)
+        
+        echo "Found Run ID: $RUN_ID"
+        
+        # Command ko positional arguments ke saath chalaana
+        databricks model-registry transition-stage "$MODEL_NAME" latest Staging false
+        
+        echo "Model $MODEL_NAME transitioned to Staging via CI/CD."
