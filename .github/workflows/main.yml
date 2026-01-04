@@ -20,13 +20,15 @@ jobs:
     - name: 🐍 Set up Python 3.10
       uses: actions/setup-python@v4
       with:
+        # Python version jo aapne requirements.txt ke liye set kiya tha
         python-version: '3.10'
 
     - name: 📦 Install dependencies
       run: |
         python -m pip install --upgrade pip
+        # Ab dependencies install ho jaayengi (scikit-learn version fix ho chuka hai)
         pip install -r requirements.txt
-        # Linting tool install karo (Task 5 requirement)
+        # Linting tool install karo
         pip install flake8 
 
     # 1. Linting Step (Code Style Check)
@@ -38,17 +40,16 @@ jobs:
     # 2. Unit Testing Step (Automated Testing)
     - name: 🧪 Run Pytest Unit Tests
       run: |
-        pytest test/
+        # FIX: Pytest executable ko Python module ke through chalao
+        python -m pytest test/ 
 
     # 3. Model Training and MLflow Logging Step (Reproducibility & Artifacts)
     - name: 🚂 Train Model and Log to MLflow
-      # MLflow ko run hone ke liye zaroori hai ki data file maujood ho
-      # Hum is assume karte hain ki data file GitHub repository mein 'data/' folder mein hai
+      # Yeh step tabhi chalega jab data/cleveland.data GitHub par present ho
       run: |
         python src/train_model.py
         
-    - name: 📄 Upload MLflow Artifacts (Optional but good for reporting)
-      # Is step se 'mlruns' folder ko artifacts ke roop mein save kiya jaata hai
+    - name: 📄 Upload MLflow Artifacts
       uses: actions/upload-artifact@v4
       with:
         name: mlflow-artifacts
