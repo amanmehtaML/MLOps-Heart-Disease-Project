@@ -1,0 +1,56 @@
+name: Heart Disease MLOps CI Pipeline
+
+on:
+  # Jab bhi code push ya Pull Request 'main' branch mein aaye, tab run karo
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: ⬇️ Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🐍 Set up Python 3.10
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.10'
+
+    - name: 📦 Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+        # Linting tool install karo (Task 5 requirement)
+        pip install flake8 
+
+    # 1. Linting Step (Code Style Check)
+    - name: 🧹 Run Linting (Flake8)
+      run: |
+        # src/ folder ke code ko check karega
+        flake8 src/ --count --show-source --statistics
+
+    # 2. Unit Testing Step (Automated Testing)
+    - name: 🧪 Run Pytest Unit Tests
+      run: |
+        pytest test/
+
+    # 3. Model Training and MLflow Logging Step (Reproducibility & Artifacts)
+    - name: 🚂 Train Model and Log to MLflow
+      # MLflow ko run hone ke liye zaroori hai ki data file maujood ho
+      # Hum is assume karte hain ki data file GitHub repository mein 'data/' folder mein hai
+      run: |
+        python src/train_model.py
+        
+    - name: 📄 Upload MLflow Artifacts (Optional but good for reporting)
+      # Is step se 'mlruns' folder ko artifacts ke roop mein save kiya jaata hai
+      uses: actions/upload-artifact@v4
+      with:
+        name: mlflow-artifacts
+        path: mlruns/
+        retention-days: 7
