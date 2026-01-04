@@ -1,5 +1,5 @@
-# DEFINITIVE FINAL PATCH for Python 3.10 Compatibility (CI/CD)
-# Includes all 8 fixes: numpy, pandas, mlflow, starlette, protobuf, zipp, opentelemetry, and importlib-metadata.
+# ULTIMATE DEFINITIVE FINAL PATCH for Python 3.10 Compatibility (CI/CD)
+# Unlocking importlib-metadata and zipp to resolve transitive conflicts.
 
 alembic==1.17.2
 annotated-doc==0.0.4
@@ -51,7 +51,7 @@ httpcore==1.0.9
 httpx==0.28.1
 huey==2.5.5
 idna==3.11
-importlib_metadata==6.8.0          # FINAL FIX: Set to 6.8.0 for opentelemetry-api~=6.0.0 compatibility
+# importlib_metadata is now unlocked
 iniconfig==2.3.0
 ipykernel==7.1.0
 ipython==8.2.0
@@ -157,4 +157,4 @@ webcolors==25.10.0
 webencodings==0.5.1
 websocket-client==1.9.0
 Werkzeug==3.1.4
-zipp==3.20.2
+# zipp is now unlocked
