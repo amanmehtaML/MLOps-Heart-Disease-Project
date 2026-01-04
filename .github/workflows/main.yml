@@ -48,10 +48,7 @@ jobs:
     - name: 🚂 Train Model and Log to MLflow
       run: |
         python src/train_model.py
-        # FIX: Latest run ID ko ek simple file mein save karo
-        LATEST_RUN_ID=$(ls -t mlruns/0 | head -n 1)
-        echo $LATEST_RUN_ID > mlruns/LATEST_RUN_ID.txt
-
+        
     - name: 📄 Upload MLflow Artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -61,22 +58,24 @@ jobs:
     
     # 4. Continuous Deployment (CD) Steps: Model Register and Deployment
     
-    - name: 🔐 Setup Databricks CLI (Manual Install & Auth)
+    - name: 🔐 Setup New Databricks CLI (Binary Download)
       run: |
-        # FIX: Correct package name 'databricks-cli' use karna, latest version install ho jayega.
-        pip install databricks-cli
-        echo "Databricks CLI installed."
+        # FIX: Directly download and install the new CLI binary
+        curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
+        echo "$HOME/.databricks/cli" >> $GITHUB_PATH
+        echo "New Databricks CLI installed and added to PATH."
 
     - name: 🎯 Register Model and Transition to Staging
       run: |
         MODEL_NAME="Heart_Disease_Classifier"
         
-        # Get the latest run ID from the simple file we created
-        RUN_ID=$(cat mlruns/LATEST_RUN_ID.txt)
+        # FIX: Latest run ID ko robust tareeke se dhoondhna
+        # Find the latest directory (Run ID) inside mlruns/0/
+        RUN_ID=$(find mlruns/0/ -maxdepth 1 -mindepth 1 -type d -printf '%T@ %p\n' | sort -r | head -n 1 | awk '{print $2}' | xargs basename)
         
         echo "Found Run ID: $RUN_ID"
         
-        # 'databricks model-registry' command will now use the installed CLI.
+        # Now, the 'databricks model-registry' command should work with the new CLI.
         databricks model-registry transition --name $MODEL_NAME --version latest --stage Staging --archive-existing-versions false
         
         echo "Model $MODEL_NAME transitioned to Staging via CI/CD."
