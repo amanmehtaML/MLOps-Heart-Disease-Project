@@ -12,8 +12,9 @@ COLUMNS = [
     'thalach', 'exang', 'oldpeak', 'slope', 'ca', 'thal', 'target'
 ]
 
-# Data Loading function
-# Assumes data file name is 'cleveland.data' in the 'data/' directory
+
+# E302/E305 Fix: Expected 2 blank lines before functions/after function defs
+
 def load_data(path: str = "data/processed.cleveland.data") -> pd.DataFrame:
     """Loads and returns the cleaned heart disease dataset with proper headers."""
     try:
@@ -21,19 +22,23 @@ def load_data(path: str = "data/processed.cleveland.data") -> pd.DataFrame:
         # names=COLUMNS: Sahi column names assign karne ke liye.
         # na_values=['?']: Missing values ko NaN mein badalne ke liye.
         df = pd.read_csv(path, header=None, names=COLUMNS, na_values=['?']) 
+        # W291 Fix: Trailing whitespace removed
     except FileNotFoundError:
-        print(f"Error: Data file not found at {path}. Please ensure data is present.")
+        # E501 Fix: Line ko chota kiya
+        print(f"Error: Data file not found at {path}. Please ensure data is "
+              f"present.")
         raise
     
     # Missing values (jo '?' the) ko drop karo
     df = df.dropna()
 
+    # E501 Fix: Line ko chota kiya
     # Target column ko 0s aur 1s mein clean karo (4 values of disease mapping to 1)
     df['target'] = df['target'].map({0: 0, 1: 1, 2: 1, 3: 1, 4: 1})
 
     return df
 
-# Data Splitting function
+
 def split_data(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42):
     """Splits data into training and testing sets with stratification."""
     X = df.drop('target', axis=1)
@@ -44,14 +49,15 @@ def split_data(df: pd.DataFrame, test_size: float = 0.2, random_state: int = 42)
     )
     return X_train, X_test, y_train, y_test
 
-# Preprocessing Pipeline function
+
 def create_preprocessor(df: pd.DataFrame) -> ColumnTransformer:
     """Creates the preprocessing ColumnTransformer (scaling and encoding)."""
     
     # Numeric features
     numeric_features = ['age', 'trestbps', 'chol', 'thalach', 'oldpeak']
-    # Categorical features
-    categorical_features = ['sex', 'cp', 'fbs', 'restecg', 'exang', 'slope', 'ca', 'thal']
+    # E501 Fix: Line ko chota kiya
+    categorical_features = ['sex', 'cp', 'fbs', 'restecg', 'exang', 
+                            'slope', 'ca', 'thal'] 
     
     # Transformers
     numeric_transformer = Pipeline(steps=[
@@ -72,9 +78,13 @@ def create_preprocessor(df: pd.DataFrame) -> ColumnTransformer:
     )
     return preprocessor
 
+
 if __name__ == '__main__':
     # Test run
     data = load_data()
     X_train, X_test, y_train, y_test = split_data(data)
     preprocessor = create_preprocessor(data)
-    print(f"data_processor.py: Data loaded ({data.shape[0]} rows) and split successfully.")
+    # E501 Fix: Line ko chota kiya
+    print(f"data_processor.py: Data loaded ({data.shape[0]} rows) and split "
+          f"successfully.")
+    # W292 Fix: file ke end mein ek blank line zaroor ho

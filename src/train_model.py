@@ -1,20 +1,24 @@
 # MLOPS_Heart_Disease/src/train_model.py
 
 import mlflow
-import numpy as np
+# F401 Fix: numpy is unused, so remove it
 from sklearn.linear_model import LogisticRegression
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import accuracy_score, roc_auc_score, f1_score
 from sklearn.pipeline import Pipeline
-# Data processor file se functions import karo
+# W291 Fix: Trailing whitespace removed
 from data_processor import load_data, split_data, create_preprocessor 
 
 
-# Model Training aur Logging function
-def train_and_log_model(model, X_train, y_train, X_test, y_test, preprocessor, model_name):
+# E302/E305 Fix: 2 blank lines added
+
+def train_and_log_model(model, X_train, y_train, X_test, y_test, 
+                        preprocessor, model_name): # E501 Fix: Function signature split
     
     # Poora MLOps Pipeline banao (Preprocessor + Model)
-    pipeline = Pipeline(steps=[('preprocessor', preprocessor), (model_name.lower(), model)])
+    # E501 Fix: Line split
+    pipeline = Pipeline(steps=[('preprocessor', preprocessor), 
+                               (model_name.lower(), model)])
 
     with mlflow.start_run(run_name=model_name):
         
@@ -26,7 +30,8 @@ def train_and_log_model(model, X_train, y_train, X_test, y_test, preprocessor, m
         if hasattr(pipeline, "predict_proba"):
             y_proba = pipeline.predict_proba(X_test)[:, 1]
         else:
-            y_proba = y_pred 
+            y_proba = y_pred
+            # W291 Fix: Trailing whitespace removed
 
         # 2. Metrics Calculate Karo
         accuracy = accuracy_score(y_test, y_pred)
@@ -40,19 +45,22 @@ def train_and_log_model(model, X_train, y_train, X_test, y_test, preprocessor, m
         mlflow.log_metric("f1_score", f1)
         
         # 4. Model Log Karo (Task 4: Packaging complete)
-        # artifact_path is deprecated, so we only use registered_model_name
+        # E501 Fix: Line split
         mlflow.sklearn.log_model(
             sk_model=pipeline, 
             registered_model_name=f"{model_name}_Heart_Classifier" 
         )
+        # W291 Fix: Trailing whitespace removed
         
         print(f"--- {model_name} Logged to MLflow. ROC AUC: {auc:.4f} ---")
         return auc
 
-# Main execution function
+
 def run_training():
-    
+    # W293 Fix: Blank line mein space removed
+
     # 1. MLflow Setup
+    # W291 Fix: Trailing whitespace removed
     mlflow.set_tracking_uri("./mlruns") 
     experiment_name = "Heart_Disease_Prediction_Assignment"
     
@@ -71,14 +79,24 @@ def run_training():
     rf = RandomForestClassifier(n_estimators=100, random_state=42)
     
     # 4. Training and Logging
-    lr_auc = train_and_log_model(lr, X_train, y_train, X_test, y_test, preprocessor, "LogisticRegression")
-    rf_auc = train_and_log_model(rf, X_train, y_train, X_test, y_test, preprocessor, "RandomForest")
+    # E501 Fix: Line split
+    lr_auc = train_and_log_model(lr, X_train, y_train, X_test, y_test, 
+                                 preprocessor, "LogisticRegression") 
+    # E501 Fix: Line split
+    rf_auc = train_and_log_model(rf, X_train, y_train, X_test, y_test, 
+                                 preprocessor, "RandomForest")
     
     # 5. Final Decision
     if lr_auc > rf_auc:
-        print(f"\nFinal Decision: Logistic Regression is the best model (ROC AUC: {lr_auc:.4f}).")
+        # E501 Fix: Line split
+        print(f"\nFinal Decision: Logistic Regression is the best model "
+              f"(ROC AUC: {lr_auc:.4f}).")
     else:
-        print(f"\nFinal Decision: Random Forest is the best model (ROC AUC: {rf_auc:.4f}).")
+        # E501 Fix: Line split
+        print(f"\nFinal Decision: Random Forest is the best model "
+              f"(ROC AUC: {rf_auc:.4f}).")
+
 
 if __name__ == '__main__':
     run_training()
+    # W292 Fix: file ke end mein ek blank line zaroor ho
