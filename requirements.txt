@@ -1,5 +1,5 @@
-# ULTIMATE FINAL FIXES for Python 3.10 Compatibility (CI/CD)
-# Includes all previous fixes, major version locks, and the starlette/fastapi sync.
+# ULTIMATE FINAL FINAL FIXES for Python 3.10 Compatibility (CI/CD)
+# Includes all previous fixes, major version locks, and the zipp/importlib-metadata sync.
 
 alembic==1.17.2
 annotated-doc==0.0.4
@@ -139,7 +139,7 @@ soupsieve==2.5
 SQLAlchemy==2.0.31
 sqlparse==0.5.5
 stack-data==0.6.3
-starlette==0.40.0           # FINAL FIX: Updated to meet fastapi>=0.40.0 requirement
+starlette==0.40.0
 terminado==0.18.1
 threadpoolctl==3.5.0
 tinycss2==1.4.0
@@ -157,4 +157,4 @@ webcolors==25.10.0
 webencodings==0.5.1
 websocket-client==1.9.0
 Werkzeug==3.1.4
-zipp==3.18.1
+zipp==3.20.2             # FINAL FIX: Updated from 3.18.1 to 3.20.2 for importlib-metadata compatibility
