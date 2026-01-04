@@ -81,7 +81,6 @@ jobs:
         
         if [ -z "$LATEST_RUN_DIR" ]; then
           echo "Error: Could not find any Run ID directory inside mlruns/. Deployment skipped."
-          # Deployment skip karna theek hai agar Run ID nahi milta.
           exit 0 
         fi
         
@@ -89,7 +88,7 @@ jobs:
         
         echo "Found Run ID: $RUN_ID"
         
-        # New CLI mein 'model-registry' command use karna
-        databricks model-registry transition --name $MODEL_NAME --version latest --stage Staging --archive-existing-versions false
+        # FIX: Command 'transition' ki jagah 'transition-stage' use kiya
+        databricks model-registry transition-stage --name $MODEL_NAME --version latest --stage Staging --archive-existing-versions false
         
         echo "Model $MODEL_NAME transitioned to Staging via CI/CD."
