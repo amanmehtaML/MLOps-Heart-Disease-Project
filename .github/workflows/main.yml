@@ -12,7 +12,6 @@ jobs:
   build-and-test:
     runs-on: ubuntu-latest
     
-    # Environment variables for MLflow tracking (Databricks setup ke liye zaroori)
     env:
       MLFLOW_TRACKING_URI: ${{ secrets.DATABRICKS_HOST }}
       MLFLOW_TRACKING_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
@@ -33,21 +32,24 @@ jobs:
         pip install -r requirements.txt
         pip install flake8 pytest
 
-    # 1. Linting Step (Code Style Check)
+    # 1. Linting Step
     - name: 🧹 Run Linting (Flake8)
       run: |
         flake8 src/ --count --show-source --statistics
 
-    # 2. Unit Testing Step (Automated Testing)
+    # 2. Unit Testing Step
     - name: 🧪 Run Pytest Unit Tests
       run: |
         python -m pytest test/
 
-    # 3. Model Training and MLflow Logging Step (Reproducibility & Artifacts)
+    # 3. Model Training and MLflow Logging Step
     - name: 🚂 Train Model and Log to MLflow
       run: |
         python src/train_model.py
-        
+        # FIX: Latest run ID ko ek simple file mein save karo
+        LATEST_RUN_ID=$(ls -t mlruns/0 | head -n 1)
+        echo $LATEST_RUN_ID > mlruns/LATEST_RUN_ID.txt
+
     - name: 📄 Upload MLflow Artifacts
       uses: actions/upload-artifact@v4
       with:
@@ -57,8 +59,8 @@ jobs:
     
     # 4. Continuous Deployment (CD) Steps: Model Register and Deployment
     - name: 🔐 Setup Databricks CLI Authentication
-      # FIX: Using the stable '@main' branch for resolution
-      uses: databricks/setup-cli@main
+      # FIX: Official recommended tag use karna jisse latest CLI features mil sakein
+      uses: databricks/setup-cli@v0.2.0
       with:
         databricks-host: ${{ secrets.DATABRICKS_HOST }}
         databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
@@ -67,12 +69,12 @@ jobs:
       run: |
         MODEL_NAME="Heart_Disease_Classifier"
         
-        # Get the latest run ID from the CI run
-        RUN_ID=$(cat mlruns/0/*/meta.yaml | grep run_id | awk '{print $2}' | tail -n 1)
+        # Get the latest run ID from the simple file we created
+        RUN_ID=$(cat mlruns/LATEST_RUN_ID.txt)
         
         echo "Found Run ID: $RUN_ID"
         
-        # databricks CLI use karke latest version ko Staging mein promote karo
-        databricks models transition --name $MODEL_NAME --version latest --stage Staging --archive-existing-versions false
+        # FIX: 'databricks models' ki jagah 'databricks model-registry' use karna
+        databricks model-registry transition --name $MODEL_NAME --version latest --stage Staging --archive-existing-versions false
         
         echo "Model $MODEL_NAME transitioned to Staging via CI/CD."
