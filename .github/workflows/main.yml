@@ -13,6 +13,7 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
+      # Databricks CLI aur MLflow Authentication ke liye zaroori secrets
       MLFLOW_TRACKING_URI: ${{ secrets.DATABRICKS_HOST }}
       MLFLOW_TRACKING_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       MLFLOW_EXPERIMENT_NAME: /Users/your_user_email/Heart_Disease_Prediction_CI
@@ -44,7 +45,7 @@ jobs:
       run: |
         python -m pytest test/
 
-    # 3. Model Training and MLflow Logging Step
+    # 3. Model Training and MLflow Logging Step (CI)
     - name: 🚂 Train Model and Log to MLflow
       run: |
         python src/train_model.py
@@ -56,11 +57,11 @@ jobs:
         path: mlruns/
         retention-days: 7
     
-    # 4. Continuous Deployment (CD) Steps: Model Register and Deployment
+    # 4. Continuous Deployment (CD) Steps
     
     - name: 🔐 Setup New Databricks CLI (Binary Download)
       run: |
-        # FIX: Directly download and install the new CLI binary
+        # Action resolution error ko bypass karne ke liye naya CLI binary download kiya
         curl -fsSL https://raw.githubusercontent.com/databricks/setup-cli/main/install.sh | sh
         echo "$HOME/.databricks/cli" >> $GITHUB_PATH
         echo "New Databricks CLI installed and added to PATH."
@@ -69,13 +70,18 @@ jobs:
       run: |
         MODEL_NAME="Heart_Disease_Classifier"
         
-        # FIX: Latest run ID ko robust tareeke se dhoondhna
-        # Find the latest directory (Run ID) inside mlruns/0/
-        RUN_ID=$(find mlruns/0/ -maxdepth 1 -mindepth 1 -type d -printf '%T@ %p\n' | sort -r | head -n 1 | awk '{print $2}' | xargs basename)
+        # FIX: Robust Run ID extraction
+        if [ -d "mlruns/0" ]; then
+          LATEST_RUN_DIR=$(ls -td mlruns/0/*/ | head -n 1)
+          RUN_ID=$(basename $LATEST_RUN_DIR)
+        else
+          echo "Error: mlruns/0 directory not found. Check training script."
+          exit 1
+        fi
         
         echo "Found Run ID: $RUN_ID"
         
-        # Now, the 'databricks model-registry' command should work with the new CLI.
+        # New CLI mein 'model-registry' command use karna
         databricks model-registry transition --name $MODEL_NAME --version latest --stage Staging --archive-existing-versions false
         
         echo "Model $MODEL_NAME transitioned to Staging via CI/CD."
