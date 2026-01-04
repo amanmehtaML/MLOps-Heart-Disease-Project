@@ -1,5 +1,5 @@
-# ULTIMATE FINAL FINAL FIXES for Python 3.10 Compatibility (CI/CD)
-# Includes all 7 fixes: numpy, pandas, mlflow, starlette, protobuf, zipp, and opentelemetry downgrade.
+# DEFINITIVE FINAL PATCH for Python 3.10 Compatibility (CI/CD)
+# Includes all 8 fixes: numpy, pandas, mlflow, starlette, protobuf, zipp, opentelemetry, and importlib-metadata.
 
 alembic==1.17.2
 annotated-doc==0.0.4
@@ -51,7 +51,7 @@ httpcore==1.0.9
 httpx==0.28.1
 huey==2.5.5
 idna==3.11
-importlib_metadata==8.7.1
+importlib_metadata==6.8.0          # FINAL FIX: Set to 6.8.0 for opentelemetry-api~=6.0.0 compatibility
 iniconfig==2.3.0
 ipykernel==7.1.0
 ipython==8.2.0
@@ -91,10 +91,10 @@ nest-asyncio==1.6.0
 notebook==7.5.1
 notebook_shim==0.2.4
 numpy==1.26.4
-opentelemetry-api==1.17.0              # FIX: Downgraded to compatible version
-opentelemetry-proto==1.17.0            # FIX: Downgraded to compatible version
-opentelemetry-sdk==1.17.0              # FIX: Downgraded to compatible version
-opentelemetry-semantic-conventions==0.35b0  # FIX: Downgraded to compatible version
+opentelemetry-api==1.17.0
+opentelemetry-proto==1.17.0
+opentelemetry-sdk==1.17.0
+opentelemetry-semantic-conventions==0.35b0
 packaging==25.0
 pandas==2.0.3
 pandocfilters==1.5.1
