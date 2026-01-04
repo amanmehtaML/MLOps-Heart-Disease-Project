@@ -1,5 +1,5 @@
 # ULTIMATE FINAL FINAL FIXES for Python 3.10 Compatibility (CI/CD)
-# Includes all previous fixes, major version locks, and the zipp/importlib-metadata sync.
+# Includes all 7 fixes: numpy, pandas, mlflow, starlette, protobuf, zipp, and opentelemetry downgrade.
 
 alembic==1.17.2
 annotated-doc==0.0.4
@@ -91,10 +91,10 @@ nest-asyncio==1.6.0
 notebook==7.5.1
 notebook_shim==0.2.4
 numpy==1.26.4
-opentelemetry-api==1.39.1
-opentelemetry-proto==1.39.1
-opentelemetry-sdk==1.39.1
-opentelemetry-semantic-conventions==0.60b1
+opentelemetry-api==1.17.0              # FIX: Downgraded to compatible version
+opentelemetry-proto==1.17.0            # FIX: Downgraded to compatible version
+opentelemetry-sdk==1.17.0              # FIX: Downgraded to compatible version
+opentelemetry-semantic-conventions==0.35b0  # FIX: Downgraded to compatible version
 packaging==25.0
 pandas==2.0.3
 pandocfilters==1.5.1
@@ -157,4 +157,4 @@ webcolors==25.10.0
 webencodings==0.5.1
 websocket-client==1.9.0
 Werkzeug==3.1.4
-zipp==3.20.2             # FINAL FIX: Updated from 3.18.1 to 3.20.2 for importlib-metadata compatibility
+zipp==3.20.2
