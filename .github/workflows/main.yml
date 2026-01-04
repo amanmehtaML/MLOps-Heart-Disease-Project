@@ -59,8 +59,8 @@ jobs:
     
     # 4. Continuous Deployment (CD) Steps: Model Register and Deployment
     - name: 🔐 Setup Databricks CLI Authentication
-      # FIX: Official recommended tag use karna jisse latest CLI features mil sakein
-      uses: databricks/setup-cli@v0.2.0
+      # FIX: Action version ko standard v1 tag par wapas laana
+      uses: databricks/setup-cli@v1
       with:
         databricks-host: ${{ secrets.DATABRICKS_HOST }}
         databricks-token: ${{ secrets.DATABRICKS_TOKEN }}
