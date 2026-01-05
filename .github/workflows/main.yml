@@ -1,4 +1,4 @@
-name: Heart Disease MLOps CI Pipeline
+name: Heart Disease MLOps CI Pipeline1
 
 on:
   push:
