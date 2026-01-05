@@ -13,8 +13,8 @@ jobs:
     runs-on: ubuntu-latest
     
     env:
-      # Global env variables for MLflow and fallback (CLI ke liye specific step mein set karenge)
-      MLFLOW_TRACKING_URI: ${{ secrets.DATABRICKS_HOST }}
+      # Global env variables for MLflow and fallback (CLI ke liye specific step mein set karenge)11
+      MLFLOW_TRACKING_URI: ${{ secrets.DATABRICKS_HOST }}11
       MLFLOW_TRACKING_TOKEN: ${{ secrets.DATABRICKS_TOKEN }}
       MLFLOW_EXPERIMENT_NAME: /Users/your_user_email/Heart_Disease_Prediction_CI
       DATABRICKS_HOST: ${{ secrets.DATABRICKS_HOST }}    
